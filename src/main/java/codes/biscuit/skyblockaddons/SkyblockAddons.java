@@ -6,6 +6,9 @@ import codes.biscuit.skyblockaddons.config.PersistentValues;
 import codes.biscuit.skyblockaddons.core.Feature;
 import codes.biscuit.skyblockaddons.core.Message;
 import codes.biscuit.skyblockaddons.core.OnlineData;
+import codes.biscuit.skyblockaddons.features.customitems.CustomItemRenderer;
+import codes.biscuit.skyblockaddons.features.customitems.CustomItemsManager;
+import codes.biscuit.skyblockaddons.features.customitems.CustomRenderItem;
 import codes.biscuit.skyblockaddons.gui.IslandWarpGui;
 import codes.biscuit.skyblockaddons.gui.SkyblockAddonsGui;
 import codes.biscuit.skyblockaddons.listeners.GuiScreenListener;
@@ -24,6 +27,7 @@ import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -61,6 +65,7 @@ public class SkyblockAddons {
     private DiscordRPCManager discordRPCManager;
     private Scheduler scheduler;
     private NewScheduler newScheduler;
+    @Getter private CustomItemsManager cmi;
 
     private boolean usingLabymod;
     private boolean usingOofModv1;
@@ -82,6 +87,7 @@ public class SkyblockAddons {
         scheduler = new Scheduler();
         newScheduler = new NewScheduler();
         discordRPCManager = new DiscordRPCManager();
+        cmi = new CustomItemsManager();
     }
 
     @Mod.EventHandler
@@ -109,6 +115,12 @@ public class SkyblockAddons {
 
         // Don't register the developer mode key on startup.
         registerKeyBindings(keyBindings.subList(0, 4));
+
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.renderItem = new CustomRenderItem(mc.getTextureManager(), mc.modelManager);
+        //mc.renderManager = new RenderManager(this.renderEngine, this.renderItem);
+        mc.itemRenderer = new CustomItemRenderer(mc);
+        ((IReloadableResourceManager)mc.getResourceManager()).registerReloadListener(mc.renderItem);
     }
 
     @Mod.EventHandler
